@@ -1,9 +1,10 @@
 import cv2
 import webbrowser
 
+
 def detect_video():
     camera = cv2.VideoCapture(0)
-    history = 10    # 训练帧数
+    history = 10
     wid = camera.get(3)    # 1280:video resolution
     hgh = camera.get(4)    # 720:video resolution
     rectLoc1 =[(int(wid*0.70),int(hgh*0.65)), (int(wid*0.95),int(hgh*0.93))]
@@ -18,11 +19,8 @@ def detect_video():
     textOrg3 = (int(wid * 0.07), int(hgh * 0.20))
     textOrg03 = (int(wid * 0.07), int(hgh * 0.29))
 
-    #print(rectLoc1 )
-    #print(rectLoc2 )
-    #print(rectLoc3 )
 
-    bs = cv2.createBackgroundSubtractorKNN(detectShadows=True)  # 背景减除器，设置阴影检测
+    bs = cv2.createBackgroundSubtractorKNN(detectShadows=True)
     bs.setHistory(history)
 
     frames = 0
@@ -33,20 +31,19 @@ def detect_video():
         if not res:
             break
 
-        fg_mask = bs.apply(frame)   # 获取 foreground mask
+        fg_mask = bs.apply(frame)
 
         if frames < history:
             frames += 1
             continue
 
-        # 对原始帧进行膨胀去噪
         th = cv2.threshold(fg_mask.copy(), 244, 255, cv2.THRESH_BINARY)[1]
         th = cv2.erode(th, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)), iterations=2)
         dilated = cv2.dilate(th, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 3)), iterations=2)
-        # 获取所有检测框
+
         image, contours, hier = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cv2.rectangle(frame,rectLoc1[0],rectLoc1[1], (255, 255, 255), 5)
-        cv2.putText(frame,"JOB1",textOrg1,2,2,(255,255,255),3)
+        cv2.putText(frame,"show pic",textOrg1,1,2,(255,255,255),3)
 
         cv2.rectangle(frame,rectLoc2[0],rectLoc2[1], (255, 255, 255), 5)
         cv2.putText(frame,"show course",textOrg2,1,2,(255,255,255),3)
@@ -56,7 +53,6 @@ def detect_video():
 
 
         for c in contours:
-            # 获取矩形框边界坐标
             rect = cv2.boundingRect(c)
             xp=int(rect[0] + rect[2])
             yp=int(rect[1] + rect[3])
@@ -103,18 +99,18 @@ def detect_video():
             break
     camera.release()
 
-def job1():
+def job3():
     #time.sleep(1)
-    print("LOL it work!  1")
+    exit(0)
 
 def job2():
     #time.sleep(1)
     webbrowser.open('https://www.cs.nccu.edu.tw/~whliao/hci2018/',2)
 
-def job3():
+def job1():
     #time.sleep(1)
-    print("LOL it work!  3")
-
+    pic = cv2.imread('LT.jpg')
+    cv2.imshow('林桐',pic)
 
 def rectContains(rectLoc,pt):#return true if point is in rectangle
     if rectLoc[0][0] < pt[0] < rectLoc[1][0] and rectLoc[0][1] < pt[1] < rectLoc[1][1]:
@@ -124,10 +120,8 @@ def rectContains(rectLoc,pt):#return true if point is in rectangle
 
 
 if __name__ == '__main__':
-    webbrowser.open('https://www.cs.nccu.edu.tw/~whliao/hci2018/',2)
-
     global THRESHOLD
-    THRESHOLD = 40
+    THRESHOLD = 70
     global j1cntr,j2cntr,j3cntr
     j1cntr = 0
     j2cntr = 0
